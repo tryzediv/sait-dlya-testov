@@ -1,0 +1,47 @@
+# ─── Dependencies ───
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build output ───
+dist/
+build/
+*.tsbuildinfo
+
+# ─── Env files (секреты и локальные настройки; пример лежит в backend/.env.example) ───
+.env
+.env.local
+.env.*.local
+
+# ─── Prisma ───
+# Миграции (prisma/migrations/) — КОММИТИМ, это часть кода.
+# Игнорируем только локальные артефакты:
+*.db
+*.db-journal
+
+# ─── Vite ───
+frontend/public/*.local
+
+# ─── Tests / E2E (задел под Playwright/Cypress) ───
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+*.log
+
+# ─── OS / IDE ───
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# ─── Docker ───
+# Данные Postgres живут в named volume pgdata (не в репо), маппить в ./data не нужно.
+# Если локально заведёте bind-mount — данные попадут сюда и будут проигнорированы:
+pgdata/

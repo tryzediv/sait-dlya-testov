@@ -1,0 +1,66 @@
+// Prisma-схема песочницы QA-курса.
+// Таблицы: todos, products, cart_items, orders (+ order_items).
+// test/reset-db чистит todos, cart_items, orders (каскадно order_items).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Todo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("todos")
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String     @default("")
+  price       Float
+  imageUrl    String     @default("")
+  category    String     @default("general")
+  createdAt   DateTime   @default(now())
+  cartItems   CartItem[]
+
+  @@map("products")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  productId Int      @unique // один товар — одна строка, количество в quantity
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("cart_items")
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  total     Float
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float // цена на момент покупки (снапшот)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
