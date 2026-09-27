@@ -22,9 +22,6 @@ export default function App() {
     <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 1100, margin: '0 auto', padding: 16 }}>
       <header>
         <h1 data-testid="app-title">QA Sandbox</h1>
-        <p style={{ color: '#555' }}>
-          Песочница курса автоматизации: Unit (калькулятор), API + простые E2E (todos), сложные E2E (магазин).
-        </p>
         <nav data-testid="main-tabs" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {TABS.map((t) => (
             <button

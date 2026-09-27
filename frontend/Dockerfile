@@ -3,6 +3,9 @@ FROM node:24-alpine
 
 WORKDIR /app
 
+# wget нужен для healthcheck
+RUN apk add --no-cache wget
+
 COPY package.json package-lock.json* ./
 RUN npm install
 

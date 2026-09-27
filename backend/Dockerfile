@@ -1,7 +1,10 @@
-// Node 24, dev-запуск через ts-node-dev, прод — скомпилированный dist.
+# Node 24, dev-запуск через ts-node-dev, прод — скомпилированный dist.
 FROM node:24-alpine
 
 WORKDIR /app
+
+# OpenSSL нужен Prisma query engine (libssl) + wget для healthcheck
+RUN apk add --no-cache openssl wget
 
 # Ставим зависимости отдельно для кэширования слоя
 COPY package.json package-lock.json* ./

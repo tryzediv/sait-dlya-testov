@@ -19,6 +19,14 @@ const CATEGORIES = [
   { id: 'books', label: 'Книги' },
 ];
 
+const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  CATEGORIES.filter((c) => c.id).map((c) => [c.id, c.label]),
+);
+
+function categoryLabel(id: string): string {
+  return CATEGORY_LABELS[id] ?? id;
+}
+
 /**
  * Магазин: витрина + корзина (модалка) + checkout.
  * Ключевые точки для E2E: debounce поиска 300мс, спиннер корзины (~1.5с),
@@ -172,7 +180,7 @@ export default function Shop() {
           <article
             key={p.id}
             data-testid={`product-card-${p.id}`}
-            style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}
+            style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column' }}
           >
             <img
               data-testid={`product-image-${p.id}`}
@@ -186,11 +194,18 @@ export default function Shop() {
             <h3 data-testid={`product-name-${p.id}`} style={{ margin: '8px 0 4px' }}>
               {p.name}
             </h3>
+            <p data-testid={`product-category-${p.id}`} style={{ margin: '0 0 4px', color: '#888', fontSize: 13 }}>
+              {categoryLabel(p.category)}
+            </p>
             <p style={{ margin: '0 0 8px', color: '#555', fontSize: 14 }}>{p.description}</p>
             <p data-testid={`product-price-${p.id}`} style={{ fontWeight: 700, margin: '0 0 8px' }}>
               {formatPrice(p.price)}
             </p>
-            <button data-testid={`add-to-cart-${p.id}`} onClick={() => void handleAdd(p.id)} style={{ padding: '8px 12px' }}>
+            <button
+              data-testid={`add-to-cart-${p.id}`}
+              onClick={() => void handleAdd(p.id)}
+              style={{ padding: '8px 12px', marginTop: 'auto', alignSelf: 'flex-start' }}
+            >
               В корзину
             </button>
           </article>
@@ -240,28 +255,33 @@ export default function Shop() {
                       data-testid={`cart-item-${line.productId}`}
                       style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 0' }}
                     >
-                      <span data-testid={`cart-item-name-${line.productId}`} style={{ flex: 1 }}>
+                      <span data-testid={`cart-item-name-${line.productId}`} style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {line.product.name}
                       </span>
                       <button
                         data-testid={`cart-decrease-${line.productId}`}
                         onClick={() => void handleQty(line.productId, line.quantity - 1)}
+                        style={{ flexShrink: 0 }}
                       >
                         −
                       </button>
-                      <span data-testid={`cart-qty-${line.productId}`}>{line.quantity}</span>
+                      <span data-testid={`cart-qty-${line.productId}`} style={{ minWidth: 24, textAlign: 'center', flexShrink: 0 }}>
+                        {line.quantity}
+                      </span>
                       <button
                         data-testid={`cart-increase-${line.productId}`}
                         onClick={() => void handleQty(line.productId, line.quantity + 1)}
+                        style={{ flexShrink: 0 }}
                       >
                         +
                       </button>
-                      <span data-testid={`cart-subtotal-${line.productId}`}>
+                      <span data-testid={`cart-subtotal-${line.productId}`} style={{ minWidth: 90, textAlign: 'right', flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>
                         {formatPrice(line.subtotal)}
                       </span>
                       <button
                         data-testid={`cart-remove-${line.productId}`}
                         onClick={() => void handleRemove(line.productId)}
+                        style={{ flexShrink: 0 }}
                       >
                         Удалить
                       </button>
