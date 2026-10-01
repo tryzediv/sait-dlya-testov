@@ -9,7 +9,7 @@ RUN apk add --no-cache wget
 COPY package.json package-lock.json* ./
 RUN npm install
 
-COPY index.html vite.config.ts jest.config.ts tsconfig.json ./
+COPY index.html vite.config.ts tsconfig.json ./
 COPY src ./src
 
 EXPOSE 5173

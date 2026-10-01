@@ -3,13 +3,13 @@
 Учебное веб-приложение для практики **Unit-, API- и E2E-тестов**.
 Авторизации нет (MVP), фронт и бэк разделены, всё поднимается **одной командой**.
 
-| Таб | Фокус тестирования | Ключевые точки |
+| Таб | Ключевые точки |
 |---|---|---|
-| 🧮 Калькулятор | Unit (+ простые E2E) | Чистые функции в `frontend/src/calculator/calculate.ts`, 17 Vitest-тестов, `data-testid="calc-*"` |
-| ✅ To-Do List | API + простые E2E | CRUD `GET/POST/PATCH/DELETE /api/todos`, фильтр `?status=active\|completed` |
-| 🛒 Магазин | Сложные E2E + API | Поиск с debounce 300 мс, спиннер корзины ~1.5 с, модалка, checkout |
+| 🧮 Калькулятор | Чистые функции в `frontend/src/calculator/calculate.ts`, `data-testid="calc-*"` |
+| ✅ To-Do List | CRUD `GET/POST/PATCH/DELETE /api/todos`, фильтр `?status=active\|completed` |
+| 🛒 Магазин | Поиск с debounce 300 мс, спиннер корзины ~1.5 с, модалка, checkout |
 
-**Служебное для тестов:** `POST /api/test/reset-db` — очищает `todos`, `cart_items`, `orders` (использовать в `beforeEach` E2E). Все интерактивные элементы имеют `data-testid`.
+**Служебное:** `POST /api/test/reset-db` — очищает `todos`, `cart_items`, `orders`. Все интерактивные элементы имеют `data-testid`.
 
 ---
 
@@ -57,10 +57,10 @@ curl http://localhost:4000/api/todos; echo
 # Товары засеяны (должно вернуть 6)?
 curl http://localhost:4000/api/products | python3 -c "import json,sys; print(len(json.load(sys.stdin)), 'products')"
 
-# Todos CRUD + reset (цепочка для beforeEach в E2E):
+# Todos CRUD + reset:
 curl -X POST http://localhost:4000/api/test/reset-db
 curl -X POST http://localhost:4000/api/todos \
-  -H 'Content-Type: application/json' -d '{"title":"Написать API-тест"}'
+  -H 'Content-Type: application/json' -d '{"title":"Купить молоко"}'
 curl 'http://localhost:4000/api/todos?status=active'
 
 # Корзина с задержкой (~1.5 с — так задумано, см. CART_DELAY_MS):
@@ -103,7 +103,6 @@ npm run dev                   # http://localhost:5173 (proxy /api → backend)
 | Команда | Назначение |
 |---|---|
 | `npm run dev` | Vite dev-сервер с hot-reload |
-| `npm run test` / `npm run test:run` | Vitest: watch-режим / однократный прогон (для CI) |
 | `npm run lint` | Проверка типов |
 | `npm run build` | Прод-сборка в `dist/` |
 
@@ -130,7 +129,7 @@ npm run dev                   # http://localhost:5173 (proxy /api → backend)
     └── src/
         ├── App.tsx         # 3 таба (локальный useState, без роутера)
         ├── api/client.ts   # axios-инстанс (baseURL, timeout 10с, формат ошибок)
-        ├── calculator/     # calculate.ts (чистые функции) + Calculator.tsx + тесты
+        ├── calculator/     # calculate.ts (чистые функции) + Calculator.tsx
         ├── todos/          # api.ts + Todos.tsx
         └── shop/           # api.ts + Shop.tsx + useDebouncedValue.ts
 ```
@@ -142,7 +141,7 @@ npm run dev                   # http://localhost:5173 (proxy /api → backend)
 
 ```
 GET    /api/health                    # живость (docker healthcheck)
-POST   /api/test/reset-db             # сброс todos/cart/orders для beforeEach
+POST   /api/test/reset-db             # сброс todos/cart/orders
 
 GET    /api/todos[?status=active|completed]
 POST   /api/todos                     # { title }
@@ -171,6 +170,4 @@ POST   /api/checkout                  # → 201 { orderId, total, items }, чи�
 
 ## 8. Что дальше (идеи для курса)
 
-- `e2e/` — Playwright или Cypress: конфиг, фикстура `reset-db` в `beforeEach`, спеки на каждый таб (все `data-testid` уже на месте)
-- CI (GitHub Actions): `tsc` + `vitest run` + `prisma migrate` + API smoke через supertest
 - Пагинация `GET /api/products`, редактирование названия todo inline, история заказов `GET /api/orders`
