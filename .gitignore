@@ -2,7 +2,7 @@
 node_modules/
 .pnp
 .pnp.js
-plan
+Course/
 
 # ─── Build output ───
 dist/
