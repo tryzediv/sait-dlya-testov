@@ -58,11 +58,6 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
-    environment:
-      # Фронт ходит относительным путём (baseURL = ''), запросы на /api
-      # проксирует сам Vite в бэк-контейнер (см. vite.config.ts).
-      # VITE_API_URL намеренно НЕ задаём: захардкоженный localhost:4000
-      # вшился бы в бандл и сломал бы доступ с любого адреса, кроме localhost.
     ports:
       - "5173:5173"
     volumes:
