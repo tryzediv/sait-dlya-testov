@@ -16,9 +16,10 @@ RUN npm config set registry https://registry.npmjs.org/ && npm ci
 COPY prisma ./prisma
 RUN npx prisma generate
 
-# Исходники и TS-конфиг
+# Исходники, статика (картинки товаров) и TS-конфиг
 COPY tsconfig.json ./
 COPY src ./src
+COPY public ./public
 
 RUN npm run build
 

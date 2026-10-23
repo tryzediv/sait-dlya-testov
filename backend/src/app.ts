@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'node:path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import { prisma } from './db';
@@ -13,6 +14,12 @@ export function createApp(): express.Express {
 
   app.use(cors());
   app.use(express.json());
+
+  // Локальные картинки товаров: файлы лежат в backend/public/images,
+  // отдаются по /api/images/* — через тот же origin, что и API,
+  // поэтому работают с любого адреса (Vite-прокси пропускает /api).
+  // В прод-сборке dist/ лежит рядом с public/ так же, как src/ в dev.
+  app.use('/api/images', express.static(path.join(__dirname, '..', 'public', 'images')));
 
   // Swagger UI — http://localhost:4000/api/docs
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

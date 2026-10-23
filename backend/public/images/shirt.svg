@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" rx="12" fill="#fce4ec"/>
+  <path d="M150 70 L110 95 L128 130 L150 118 L150 240 L250 240 L250 118 L272 130 L290 95 L250 70 Q225 92 200 92 Q175 92 150 70 Z" fill="#263238"/>
+  <text x="200" y="170" text-anchor="middle" font-family="monospace" font-size="22" font-weight="bold" fill="#7cc4ff">&lt;/&gt;</text>
+  <text x="200" y="198" text-anchor="middle" font-family="monospace" font-size="14" fill="#e8edf3">BUG HUNTER</text>
+</svg>

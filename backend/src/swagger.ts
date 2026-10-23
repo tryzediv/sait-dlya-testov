@@ -41,7 +41,7 @@ const options: swaggerJSDoc.Options = {
             name: { type: 'string', example: 'Клавиатура' },
             description: { type: 'string', example: 'Механическая, TKL' },
             price: { type: 'number', example: 4999.99 },
-            imageUrl: { type: 'string', example: 'https://picsum.photos/seed/kb/400/300' },
+            imageUrl: { type: 'string', example: '/api/images/kb.svg' },
             category: { type: 'string', example: 'electronics' },
           },
         },

@@ -41,6 +41,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
+      - ./backend/public:/app/public
     networks:
       - qa-net
     healthcheck:
