@@ -7,7 +7,9 @@ WORKDIR /app
 RUN apk add --no-cache wget
 
 COPY package.json package-lock.json* ./
-RUN npm install
+# Явно фиксируем публичный registry, чтобы сборка не зависела
+# от локальных .npmrc с приватными зеркалами.
+RUN npm config set registry https://registry.npmjs.org/ && npm ci
 
 COPY index.html vite.config.ts tsconfig.json ./
 COPY src ./src

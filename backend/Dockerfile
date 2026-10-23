@@ -6,9 +6,11 @@ WORKDIR /app
 # OpenSSL нужен Prisma query engine (libssl) + wget для healthcheck
 RUN apk add --no-cache openssl wget
 
-# Ставим зависимости отдельно для кэширования слоя
+# Ставим зависимости отдельно для кэширования слоя.
+# Явно фиксируем публичный registry, чтобы сборка не зависела
+# от локальных .npmrc с приватными зеркалами.
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm config set registry https://registry.npmjs.org/ && npm ci
 
 # Prisma-схема нужна для генерации клиента
 COPY prisma ./prisma
