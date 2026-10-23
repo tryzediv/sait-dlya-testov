@@ -59,8 +59,10 @@ services:
     depends_on:
       - backend
     environment:
-      # В dev-режиме Vite читает VITE_* при старте контейнера
-      VITE_API_URL: http://localhost:4000
+      # Фронт ходит относительным путём (baseURL = ''), запросы на /api
+      # проксирует сам Vite в бэк-контейнер (см. vite.config.ts).
+      # VITE_API_URL намеренно НЕ задаём: захардкоженный localhost:4000
+      # вшился бы в бандл и сломал бы доступ с любого адреса, кроме localhost.
     ports:
       - "5173:5173"
     volumes:

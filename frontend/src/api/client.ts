@@ -1,10 +1,12 @@
 import axios from 'axios';
 
 // Базовый инстанс для всех API-вызовов песочницы.
-// baseURL берётся из VITE_API_URL (docker-compose задаёт http://localhost:4000).
-// Таймаут 10с с запасом под CART_DELAY_MS=1500 на GET /api/cart.
+// По умолчанию — относительный baseURL: запросы идут на тот же origin,
+// откуда открыт фронт, а Vite dev-прокси (см. vite.config.ts) перебрасывает
+// /api в бэк-контейнер. Так работает с любого адреса сервера, а не только localhost.
+// VITE_API_URL можно задать явно, если бэкенд живёт на отдельном хосте.
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4000',
+  baseURL: import.meta.env.VITE_API_URL ?? '',
   timeout: 10_000,
   headers: { 'Content-Type': 'application/json' },
 });

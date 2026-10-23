@@ -14,7 +14,7 @@ const options: swaggerJSDoc.Options = {
       description:
         'API песочницы для курса автоматизации: todos, products, cart, checkout. Без авторизации (MVP).',
     },
-    servers: [{ url: 'http://localhost:4000', description: 'local backend' }],
+    servers: [{ url: '/', description: 'same origin (proxied to backend)' }],
     tags: [
       { name: 'health', description: 'Проверки живости' },
       { name: 'todos', description: 'To-Do List (CRUD)' },
