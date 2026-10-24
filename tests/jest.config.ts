@@ -1,32 +1,34 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  // 1. Среда Node.js
   testEnvironment: 'node',
-  // 2. Искать тесты в текущей папке и всех вложенных
-  roots: ['<rootDir>'],
-  // 3. Шаблон имён файлов
+  rootDir: '..',
+  roots: ['<rootDir>/tests'],
   testMatch: [
-    '<rootDir>/**/*.test.ts'
+    '<rootDir>/tests/**/*.test.ts'
   ],
-  // 4. Покрытие кода. Путь к frontend теперь указывается через ../, 
-  // так как мы находимся внутри папки tests/
   collectCoverageFrom: [
-    '../frontend/src/**/*.ts',
+    'frontend/src/**/*.ts',
+    '!frontend/src/**/*.tsx',
+    '!frontend/src/api/client.ts',
     '!**/node_modules/**'
   ],
-  // 5. Трансформация через ts-jest с указанием локального tsconfig.json
+  coverageThreshold: {
+
+    global: { branches: 70, functions: 80, lines: 80, statements: 80 },
+
+  },
   transform: {
     '^.+\\.tsx?$': [
-      'ts-jest',
+      '<rootDir>/tests/node_modules/ts-jest/dist/index.js',
       {
-        tsconfig: '<rootDir>/tsconfig.json'
+        tsconfig: '<rootDir>/tests/tsconfig.json'
       }
     ]
   },
-  // 6. Дополнительные настройки
   clearMocks: true,
-  verbose: true
+  verbose: true,
+  coverageProvider: 'v8',
 };
 
 export default config;
