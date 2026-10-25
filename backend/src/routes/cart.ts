@@ -67,6 +67,16 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
  *   post:
  *     tags: [cart]
  *     summary: Добавить товар в корзину (повторный POST увеличивает количество)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [productId]
+ *             properties:
+ *               productId: { type: integer, example: 1 }
+ *               quantity: { type: integer, example: 2 }
  *     responses:
  *       200: { description: Корзина после добавления }
  *       400: { description: Невалидный productId/quantity }
@@ -107,6 +117,20 @@ router.post('/items', async (req: Request, res: Response, next: NextFunction) =>
  *   patch:
  *     tags: [cart]
  *     summary: Изменить количество (quantity=0 удаляет строку)
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [quantity]
+ *             properties:
+ *               quantity: { type: integer, example: 2 }
  *     responses:
  *       200: { description: Корзина после изменения }
  *       400: { description: Невалидные данные }
@@ -146,6 +170,11 @@ router.patch('/items/:productId', async (req: Request, res: Response, next: Next
  *   delete:
  *     tags: [cart]
  *     summary: Убрать товар из корзины
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema: { type: integer }
  *     responses:
  *       200: { description: Корзина после удаления }
  *       400: { description: Невалидный productId }

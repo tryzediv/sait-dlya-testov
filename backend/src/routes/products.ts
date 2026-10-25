@@ -48,6 +48,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
  *   get:
  *     tags: [products]
  *     summary: Один товар (удобно для 404-кейсов в API-тестах)
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
  *     responses:
  *       200: { description: Товар }
  *       400: { description: Невалидный id }

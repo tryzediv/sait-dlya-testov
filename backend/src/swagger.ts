@@ -1,3 +1,4 @@
+import path from 'node:path';
 import swaggerJSDoc from 'swagger-jsdoc';
 
 /**
@@ -64,8 +65,14 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
-  // Отсюда swagger-jsdoc подтянет @openapi-комментарии из роутов.
-  apis: ['./src/routes/*.ts', './src/app.ts'],
+  // Пути абсолютные от __dirname: работают и в dev (src/), и в проде (dist/),
+  // и не зависят от cwd, из которой запущен процесс.
+  apis: [
+    path.join(__dirname, 'routes', '*.ts'),
+    path.join(__dirname, 'routes', '*.js'),
+    path.join(__dirname, 'app.ts'),
+    path.join(__dirname, 'app.js'),
+  ],
 };
 
 export const swaggerSpec = swaggerJSDoc(options);

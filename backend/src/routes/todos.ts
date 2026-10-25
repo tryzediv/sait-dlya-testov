@@ -108,6 +108,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
  *         name: id
  *         required: true
  *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             minProperties: 1
+ *             properties:
+ *               title: { type: string, example: 'Написать API-тест' }
+ *               completed: { type: boolean, example: true }
  *     responses:
  *       200: { description: Обновлённая задача }
  *       400: { description: Невалидный id или body }
