@@ -35,11 +35,21 @@ export type CalcResult =
   | { ok: true; value: number }
   | { ok: false; error: string };
 
+/**
+ * Нормализация пойманного значения в строку ошибки.
+ * Отдельная функция, чтобы обе ветки (Error / не-Error) покрывались
+ * прямыми Unit-тестами: через safeCalculate поймать не-Error нельзя —
+ * calculate бросает только Error.
+ */
+export function toErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
+}
+
 export function safeCalculate(a: number, b: number, op: Operation): CalcResult {
   try {
     return { ok: true, value: calculate(a, b, op) };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+    return { ok: false, error: toErrorMessage(e) };
   }
 }
 

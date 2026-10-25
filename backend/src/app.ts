@@ -75,7 +75,6 @@ export function createApp(): express.Express {
   });
 
   // Централизованный обработчик ошибок → всегда JSON { error, message }.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use(
     (
       err: unknown,

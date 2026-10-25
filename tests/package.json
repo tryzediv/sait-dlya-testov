@@ -4,17 +4,23 @@
   "scripts": {
     "test": "jest",
     "test:unit": "jest unit",
-    "test:coverage": "jest --coverage"
+    "lint": "eslint .",
+    "lint:types": "tsc --noEmit",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/jest": "^30.0.0",
+    "eslint": "^9.39.5",
+    "globals": "^16.5.0",
     "jest": "^30.5.2",
     "ts-jest": "^29.4.15",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.2",
+    "typescript-eslint": "^8.72.0"
   }
 }
