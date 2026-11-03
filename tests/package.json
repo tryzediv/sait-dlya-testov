@@ -4,6 +4,7 @@
   "scripts": {
     "test": "jest",
     "test:unit": "jest unit",
+    "test:api": "jest api",
     "lint": "eslint .",
     "lint:types": "tsc --noEmit",
     "coverage": "jest --coverage"
@@ -15,7 +16,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@types/jest": "^30.0.0",
+    "axios": "^1.21.0",
     "eslint": "^9.39.5",
+    "global-agent": "^4.1.6",
     "globals": "^16.5.0",
     "jest": "^30.5.2",
     "ts-jest": "^29.4.15",

@@ -115,29 +115,20 @@ describe('toErrorMessage', () => {
     );
 });
 
+
 describe('formatResult', () => {
-
-    it('Форматирование числа с 15 знаками после запятой', () => {
-        expect(formatResult(0.123456789012345)).toBe('0.123456789012')
-    });
-
-    it('Форматирование числа', () => {
-        expect(formatResult(123)).toBe('123');
-    });
-
-    it('Форматирование числа с десятичной частью', () => {
-        expect(formatResult(123.45)).toBe('123.45');
-    });
-    
-    it('Форматирование числа 0', () => {
-        expect(formatResult(0)).toBe('0');
-    });
-
-    it('Форматирование бесконечности', () => {
-        expect(formatResult(Infinity)).toBe('Infinity');
-    });
-
-    it('Форматирование минус бесконечности', () => {
-        expect(formatResult(-Infinity)).toBe('-Infinity');
-    });
+    it.each<{ input: number, expected: string, desc: string}>([
+        { input: 0.123456789012345, expected: '0.123456789012', desc: 'Форматирование числа с 15 знаками после запятой' },
+        { input: 123, expected: '123', desc: 'Форматирование числа' },
+        { input: 123.45, expected: '123.45', desc: 'Форматирование числа с десятичной частью '},
+        { input: 0, expected: '0', desc: 'Форматирование числа ноль' },
+        { input: Infinity, expected: 'Infinity', desc: 'Форматирование бесконечности' },
+        { input: -Infinity, expected: '-Infinity', desc: 'Форматирование минус бесконечности' },
+        { input: -123, expected: '-123', desc: 'Форматирование отрицательного числа' }
+    ]) (
+        `Корректно выполняется $desc: $input: $expected`,
+        ({ input, expected}) => {
+            expect(formatResult(input)).toBe(expected);
+        }
+    );
 });
