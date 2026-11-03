@@ -1,18 +1,17 @@
-import { apiClient } from './client';
+import { productsApi } from './client';
 
-const client = apiClient;
 
 describe('GET /api/products', () => {
 
   it('возвращает статус 200 и список продуктов', async () => {
-    const res = await client.get('/api/products');
+    const res = await productsApi.getAll();
     expect(res.status).toBe(200);
     expect(Array.isArray(res.data)).toBe(true);
     expect(res.data.length).toBeGreaterThan(0);
   });
 
   it('товары имеют ожидаемую структуру', async () => {
-    const res = await client.get('/api/products');
+    const res = await productsApi.getAll();
     expect(res.status).toBe(200);
     for (const p of res.data) {
         expect(p).toEqual(expect.objectContaining({
@@ -29,7 +28,7 @@ describe('GET /api/products', () => {
   })
 
   it('фильтрует по категории', async () => {
-    const res = await client.get('/api/products', { params: { category: 'books' } });
+    const res = await productsApi.getAll({ params: { category: 'books' } });
     expect(res.status).toBe(200);
     expect(res.data.length).toBeGreaterThan(0);
     for (const p of res.data) {
@@ -38,7 +37,7 @@ describe('GET /api/products', () => {
   });
 
   it.each(['мышь', 'МЫШЬ', 'край', 'Прошитый'])('регистронезависимо ищет по "%s"', async (search) => {
-    const res = await client.get('/api/products', { params: { search } });
+    const res = await productsApi.getAll( { params: { search } });
     expect(res.status).toBe(200);
     expect(res.data.length).toBeGreaterThan(0);
     for (const p of res.data) {
@@ -50,12 +49,12 @@ describe('GET /api/products', () => {
 
 describe('GET /api/products/:id', () => {
   it('возвращает товар по существующему id', async () => {
-    const list = await client.get('/api/products');
+    const list = await productsApi.getAll();
     expect(list.status).toBe(200);
     expect(list.data.length).toBeGreaterThan(0);
 
     const first = list.data[0];
-    const res = await client.get(`/api/products/${first.id}`);
+    const res = await productsApi.getById(first.id);
     expect(res.status).toBe(200);
     expect(res.data).toMatchObject({
       id: first.id,
@@ -69,13 +68,13 @@ describe('GET /api/products/:id', () => {
   });
 
   it('возвращает статус 404 для отсутсвующего продукта', async () => {
-    const res = await client.get('/api/products/999999');
+    const res = await productsApi.getById(999999);
     expect(res.status).toBe(404);
     expect(res.data).toHaveProperty('error', 'Not found');
   });
 
   it('возвращает статус 400 для невалидного id', async () => {
-    const res = await client.get('/api/products/abc');
+    const res = await productsApi.getByIdRaw('abc');
     expect(res.status).toBe(400);
     expect(res.data).toHaveProperty('error', 'Validation error');
   });
