@@ -14,7 +14,7 @@ function fetchUserData(userId: number): Promise<{ id: number; name: string; role
     });
   }
 
-  function fetchUserSettings(userId: number): Promise<{ theme: string; notifications: boolean }> {
+  function fetchUserSettings(): Promise<{ theme: string; notifications: boolean }> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({ theme: "dark", notifications: true });
@@ -44,7 +44,7 @@ function fetchUserData(userId: number): Promise<{ id: number; name: string; role
   describe('Promise.all', () => {
     it('загружает данные последовательно (медленно)', async () => {
         const user = await fetchUserData(1);       // Ждём 100 мс
-        const settings = await fetchUserSettings(1); // Ждём ещё 100 мс
+        const settings = await fetchUserSettings(); // Ждём ещё 100 мс
         expect(user.name).toBe("Алексей");
         expect(settings.theme).toBe("dark");
       });
@@ -53,7 +53,7 @@ function fetchUserData(userId: number): Promise<{ id: number; name: string; role
       // Оба запроса идут параллельно
       const [user, settings] = await Promise.all([
         fetchUserData(1),
-        fetchUserSettings(1),
+        fetchUserSettings(),
       ]);
 
       expect(user).toEqual({ id: 1, name: "Алексей", role: "admin" });
