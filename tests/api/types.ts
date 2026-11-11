@@ -19,3 +19,41 @@ export interface ApiErrors {
     message?: string;
 
 }
+
+export interface CartProduct {
+    id: number;
+    name: string;
+    price: number;
+    imageUrl: string;
+    category: string;
+}
+
+export interface CartItem {
+    productId: number;
+    quantity: number;
+    subtotal: number;
+    product: CartProduct;
+}
+
+export interface Cart {
+    items: CartItem[];
+    total: number;
+}
+
+export interface OrderItem {
+    id: number;
+    orderId: number;
+    productId: number;
+    quantity: number;
+    price: number;
+}
+
+export interface CheckoutOrder {
+    orderId: number;
+    total: number;
+    items: OrderItem[];
+}
+
+export interface Health {
+    status: string;
+}

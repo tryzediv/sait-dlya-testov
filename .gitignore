@@ -48,3 +48,9 @@ Thumbs.db
 # Данные Postgres живут в named volume pgdata (не в репо), маппить в ./data не нужно.
 # Если локально заведёте bind-mount — данные попадут сюда и будут проигнорированы:
 pgdata/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

@@ -1,0 +1,21 @@
+{
+  "name": "sait-dlya-testov",
+  "version": "1.0.0",
+  "description": "Учебное веб-приложение для практики **Unit-, API- и E2E-тестов**.\r Авторизации нет (MVP), фронт и бэк разделены, всё поднимается **одной командой**.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git@gitflic.ru:galgofa/sait-dlya-testov.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^26.6.6"
+  }
+}
