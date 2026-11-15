@@ -11,7 +11,7 @@
     "playwright:install": "playwright install chromium",
     "lint": "eslint .",
     "lint:types": "tsc --noEmit --module es2020",
-    "coverage": "jest --coverage",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
