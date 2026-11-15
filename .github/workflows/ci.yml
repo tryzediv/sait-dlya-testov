@@ -244,4 +244,12 @@ jobs:
 
       - name: Run k6 scenario
         working-directory: tests/k6
-        run: k6 run ${{ inputs.k6-script }}
+        run: k6 run --summary-export=summary.json ${{ inputs.k6-script }}
+
+      - name: Upload k6 summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-summary
+          path: tests/k6/summary.json
+          retention-days: 30
