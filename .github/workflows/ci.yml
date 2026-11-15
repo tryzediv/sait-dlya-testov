@@ -44,19 +44,19 @@ jobs:
       - name: Backend lint
         working-directory: backend
         run: |
-          npm ci
+          npm i
           npm run lint
 
       - name: Frontend lint
         working-directory: frontend
         run: |
-          npm ci
+          npm i
           npm run lint
 
       - name: Tests lint
         working-directory: tests
         run: |
-          npm ci
+          npm i
           npm run lint
           npm run lint:types
 
@@ -73,7 +73,7 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm ci
+        run: npm i
 
       - name: Unit tests with coverage
         working-directory: tests
@@ -111,7 +111,7 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm ci
+        run: npm i
 
       - name: API tests
         working-directory: tests
@@ -139,7 +139,7 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm ci
+        run: npm i
 
       - name: Install Playwright browsers
         working-directory: tests
