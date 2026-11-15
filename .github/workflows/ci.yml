@@ -167,46 +167,34 @@ jobs:
           path: tests/allure-results/
           retention-days: 7
 
-  # Сборка единого Allure-отчёта из результатов всех тестовых джоб
-  # и публикация на GitHub Pages. Ждёт завершения всех (needs),
-  # но always() — публикует даже частично (упавшие тесты в отчёте видны).
+  # Собирает единый Allure-отчёт из результатов unit/api/e2e
+  # и публикует его на GitHub Pages.
+  # needs ждёт все тестовые джобы, always() — публикует даже частично
+  # (упавшие тесты в отчёте тоже видны).
   report:
     needs: [lint, unit, api, e2e]
     if: always() && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
-    # Деплои на Pages — строго по очереди, иначе два пуша подряд
-    # могут перезаписать друг друга.
+    # Деплои строго по очереди: параллельные перезаписали бы друг друга.
     concurrency:
       group: pages
       cancel-in-progress: false
+    # Без этих прав deploy-pages упадёт с 403.
     permissions:
       contents: read
       pages: write
       id-token: write
+    # Показывает ссылку на опубликованный отчёт прямо в интерфейсе Actions.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      # Частей может не быть (все джобы скипнуты/упали до прогона тестов).
-      # Сначала проверяем наличие, иначе download с pattern упадёт.
-      - name: Check for Allure artifacts
-        id: check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner, repo: context.repo.repo,
-              run_id: context.runId,
-            });
-            core.setOutput('found', data.artifacts.some(a => a.name.startsWith('allure-')) ? 'yes' : 'no');
-
       - name: Download Allure results
-        if: steps.check.outputs.found == 'yes'
         uses: actions/download-artifact@v4
         with:
           pattern: allure-*
           path: parts
-        continue-on-error: true
+          merge-multiple: true
 
       - uses: actions/setup-java@v4
         with:
@@ -214,15 +202,7 @@ jobs:
           java-version: '17'
 
       - name: Build Allure HTML
-        run: |
-          shopt -s nullglob
-          parts=(parts/*/)
-          mkdir -p _site
-          if [ ${#parts[@]} -eq 0 ]; then
-            echo '<h1>CI: в этом запуске нет Allure-результатов (джобы скипнуты)</h1>' > _site/index.html
-          else
-            npx -y allure-commandline generate "${parts[@]}" -o _site --clean
-          fi
+        run: npx -y allure-commandline generate parts -o _site --clean
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
