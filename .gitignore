@@ -28,6 +28,8 @@ frontend/public/*.local
 coverage/
 test-results/
 playwright-report/
+allure-results/
+allure-report/
 blob-report/
 .nyc_output/
 cypress/videos/

@@ -1,9 +1,10 @@
 # Схема:
-#   push в ЛЮБУЮ ветку -> lint, unit (с покрытием)
-#   push / PR в master  -> lint + unit + api + e2e
-#     (порядок запуска lint -> unit -> api -> e2e, но падение одной
-#      джобы остальные не останавливает — результат виден по каждой)
-#   вручную             -> k6-нагрузка (3 сценария на выбор)
+#   push в ЛЮБУЮ ветку / PR в master -> lint, unit (+ api, e2e — только master)
+#     стартуют ПАРАЛЛЕЛЬНО, без needs между собой.
+#     Падение одной джобы остальные не останавливает.
+#   после тестовых джоб -> report: собирает Allure-отчёт и публикует на GitHub Pages.
+#     Перед первым запуском: Settings → Pages → Source: GitHub Actions.
+#   вручную (Run workflow) -> только k6 (3 сценария на выбор).
 
 name: CI
 
@@ -24,11 +25,13 @@ on:
           - load.js
           - spike.js
 
+env:
+  NOT_MANUAL: ${{ github.event_name != 'workflow_dispatch' }}
+  IS_MASTER: ${{ github.ref == 'refs/heads/master' }}
+
 jobs:
-  # ---------- lint: eslint + tsc во всех трёх пакетах ----------
   lint:
-    # Ручной запуск — только для k6, линт там не нужен.
-    if: github.event_name != 'workflow_dispatch'
+    if: env.NOT_MANUAL == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,28 +48,24 @@ jobs:
       - name: Backend lint
         working-directory: backend
         run: |
-          npm i
+          npm ci
           npm run lint
 
       - name: Frontend lint
         working-directory: frontend
         run: |
-          npm i
+          npm ci
           npm run lint
 
       - name: Tests lint
         working-directory: tests
         run: |
-          npm i
+          npm ci
           npm run lint
           npm run lint:types
 
-  # ---------- unit с покрытием, после зелёного линт ----------
   unit:
-    needs: lint
-    # Падение lint не отменяет unit: результат виден по каждой джобе отдельно.
-    # Отсечка workflow_dispatch — ручной запуск только для k6.
-    if: ${{ always() && github.event_name != 'workflow_dispatch' }}
+    if: env.NOT_MANUAL == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +77,7 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm i
+        run: npm ci
 
       - name: Unit tests with coverage
         working-directory: tests
@@ -94,12 +93,16 @@ jobs:
           path: tests/coverage/
           retention-days: 30
 
-  # ---------- api: только master, после зелёного unit ----------
+      - name: Upload Allure results (unit)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-unit
+          path: tests/allure-results/
+          retention-days: 7
+
   api:
-    needs: unit
-    # github.ref — ветка, github.event_name — отсекает ручной запуск k6.
-    # always() — падает unit или нет, api всё равно стартует.
-    if: ${{ always() && github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+    if: ${{ env.IS_MASTER == 'true' && env.NOT_MANUAL == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -111,16 +114,22 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm i
+        run: npm ci
 
       - name: API tests
         working-directory: tests
         run: npm run test:api
 
-  # ---------- e2e: только master, после зелёного api ----------
+      - name: Upload Allure results (api)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-api
+          path: tests/allure-results/
+          retention-days: 7
+
   e2e:
-    needs: api
-    if: ${{ always() && github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+    if: ${{ env.IS_MASTER == 'true' && env.NOT_MANUAL == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -132,7 +141,7 @@ jobs:
           cache-dependency-path: tests/package-lock.json
 
       - working-directory: tests
-        run: npm i
+        run: npm ci
 
       - name: Install Playwright browsers
         working-directory: tests
@@ -152,7 +161,80 @@ jobs:
             tests/test-results/
           retention-days: 30
 
-  # ---------- k6: только вручную через "Run workflow" ----------
+      - name: Upload Allure results (e2e)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-e2e
+          path: tests/allure-results/
+          retention-days: 7
+
+  # Сборка единого Allure-отчёта из результатов всех тестовых джоб
+  # и публикация на GitHub Pages. Ждёт завершения всех (needs),
+  # но always() — публикует даже частично (упавшие тесты в отчёте видны).
+  report:
+    needs: [lint, unit, api, e2e]
+    if: ${{ always() && env.NOT_MANUAL == 'true' }}
+    runs-on: ubuntu-latest
+    # Деплои на Pages — строго по очереди, иначе два пуша подряд
+    # могут перезаписать друг друга.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Частей может не быть (все джобы скипнуты/упали до прогона тестов).
+      # Сначала проверяем наличие, иначе download с pattern упадёт.
+      - name: Check for Allure artifacts
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner, repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            core.setOutput('found', data.artifacts.some(a => a.name.startsWith('allure-')) ? 'yes' : 'no');
+
+      - name: Download Allure results
+        if: steps.check.outputs.found == 'yes'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: allure-*
+          path: parts
+        continue-on-error: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build Allure HTML
+        run: |
+          shopt -s nullglob
+          parts=(parts/*/)
+          mkdir -p _site
+          if [ ${#parts[@]} -eq 0 ]; then
+            echo '<h1>CI: в этом запуске нет Allure-результатов (джобы скипнуты)</h1>' > _site/index.html
+          else
+            npx -y allure-commandline generate "${parts[@]}" -o _site --clean
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   k6:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

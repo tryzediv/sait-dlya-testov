@@ -27,6 +27,9 @@ const config: Config = {
   clearMocks: true,
   verbose: true,
   coverageProvider: 'v8',
+  // Allure-результаты для публикации на GitHub Pages (см. .github/workflows/ci.yml).
+  // Путь явный: jest резолвит репортеры от rootDir (..), а пакет лежит в tests/node_modules.
+  reporters: ['default', '<rootDir>/tests/node_modules/jest-allure2-reporter'],
 };
 
 export default config;
