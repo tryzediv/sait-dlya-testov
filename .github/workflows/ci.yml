@@ -1,0 +1,158 @@
+# Схема:
+#   push в ЛЮБУЮ ветку -> lint, unit (с покрытием)
+#   push / PR в master  -> lint -> unit -> api -> e2e (строгая цепочка)
+#   вручную             -> k6-нагрузка (3 сценария на выбор)
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      k6-script:
+        description: "k6-сценарий из tests/k6/"
+        type: choice
+        required: true
+        default: smoke.js
+        options:
+          - smoke.js
+          - load.js
+          - spike.js
+
+jobs:
+  # ---------- lint: eslint + tsc во всех трёх пакетах ----------
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            tests/package-lock.json
+
+      - name: Backend lint
+        working-directory: backend
+        run: |
+          npm ci
+          npm run lint
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+
+      - name: Tests lint
+        working-directory: tests
+        run: |
+          npm ci
+          npm run lint
+          npm run lint:types
+
+  # ---------- unit с покрытием, после зелёного линт ----------
+  unit:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - working-directory: tests
+        run: npm ci
+
+      - name: Unit tests with coverage
+        working-directory: tests
+        # Пороги — в jest.config.ts (branches 70, остальное 80):
+        # ниже порога джоба краснеет.
+        run: npm run test:unit -- --coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: tests/coverage/
+          retention-days: 30
+
+  # ---------- api: только master, после зелёного unit ----------
+  api:
+    needs: unit
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - working-directory: tests
+        run: npm ci
+
+      - name: API tests
+        working-directory: tests
+        run: npm run test:api
+
+  # ---------- e2e: только master, после зелёного api ----------
+  e2e:
+    needs: api
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - working-directory: tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: tests
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        working-directory: tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            tests/playwright-report/
+            tests/test-results/
+          retention-days: 30
+
+  # ---------- k6: только вручную через "Run workflow" ----------
+  k6:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 scenario
+        working-directory: tests/k6
+        run: k6 run ${{ inputs.k6-script }}
