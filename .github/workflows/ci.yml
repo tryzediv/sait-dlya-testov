@@ -25,13 +25,9 @@ on:
           - load.js
           - spike.js
 
-env:
-  NOT_MANUAL: ${{ github.event_name != 'workflow_dispatch' }}
-  IS_MASTER: ${{ github.ref == 'refs/heads/master' }}
-
 jobs:
   lint:
-    if: env.NOT_MANUAL == 'true'
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +61,7 @@ jobs:
           npm run lint:types
 
   unit:
-    if: env.NOT_MANUAL == 'true'
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -102,7 +98,8 @@ jobs:
           retention-days: 7
 
   api:
-    if: ${{ env.IS_MASTER == 'true' && env.NOT_MANUAL == 'true' }}
+    # Только master и не ручной запуск. needs нет — параллельный старт.
+    if: github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,7 +126,8 @@ jobs:
           retention-days: 7
 
   e2e:
-    if: ${{ env.IS_MASTER == 'true' && env.NOT_MANUAL == 'true' }}
+    # Только master и не ручной запуск. needs нет — параллельный старт.
+    if: github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -174,7 +172,7 @@ jobs:
   # но always() — публикует даже частично (упавшие тесты в отчёте видны).
   report:
     needs: [lint, unit, api, e2e]
-    if: ${{ always() && env.NOT_MANUAL == 'true' }}
+    if: always() && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     # Деплои на Pages — строго по очереди, иначе два пуша подряд
     # могут перезаписать друг друга.
