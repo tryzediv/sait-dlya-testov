@@ -5,12 +5,13 @@
     "test": "jest",
     "test:unit": "jest unit",
     "test:api": "jest api",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "playwright:install": "playwright install chromium",
     "lint": "eslint .",
-    "lint:types": "tsc --noEmit",
+    "lint:types": "tsc --noEmit --module es2020",
     "coverage": "jest --coverage",
-    "test:e2e": "npx playwright test",
-    "test:e2e:head": "npx playwright test --headed",
-    "test:e2e:debug": "npx playwright test --debug"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,11 @@
   "description": "",
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+<<<<<<< Updated upstream
     "@playwright/test": "^1.65.0",
+=======
+    "@playwright/test": "^1.64.1",
+>>>>>>> Stashed changes
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.6",
     "axios": "^1.21.0",

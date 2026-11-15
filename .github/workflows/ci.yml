@@ -1,6 +1,8 @@
 # Схема:
 #   push в ЛЮБУЮ ветку -> lint, unit (с покрытием)
-#   push / PR в master  -> lint -> unit -> api -> e2e (строгая цепочка)
+#   push / PR в master  -> lint + unit + api + e2e
+#     (порядок запуска lint -> unit -> api -> e2e, но падение одной
+#      джобы остальные не останавливает — результат виден по каждой)
 #   вручную             -> k6-нагрузка (3 сценария на выбор)
 
 name: CI
@@ -25,6 +27,8 @@ on:
 jobs:
   # ---------- lint: eslint + tsc во всех трёх пакетах ----------
   lint:
+    # Ручной запуск — только для k6, линт там не нужен.
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +64,9 @@ jobs:
   # ---------- unit с покрытием, после зелёного линт ----------
   unit:
     needs: lint
+    # Падение lint не отменяет unit: результат виден по каждой джобе отдельно.
+    # Отсечка workflow_dispatch — ручной запуск только для k6.
+    if: ${{ always() && github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +97,9 @@ jobs:
   # ---------- api: только master, после зелёного unit ----------
   api:
     needs: unit
-    if: github.ref == 'refs/heads/master'
+    # github.ref — ветка, github.event_name — отсекает ручной запуск k6.
+    # always() — падает unit или нет, api всё равно стартует.
+    if: ${{ always() && github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -111,7 +120,7 @@ jobs:
   # ---------- e2e: только master, после зелёного api ----------
   e2e:
     needs: api
-    if: github.ref == 'refs/heads/master'
+    if: ${{ always() && github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

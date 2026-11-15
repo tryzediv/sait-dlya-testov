@@ -21,4 +21,11 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
+  // k6-скрипты: __VU/__ITER/__ENV — встроенные переменные рантайма k6.
+  {
+    files: ['k6/**/*.js'],
+    languageOptions: {
+      globals: { __VU: 'readonly', __ITER: 'readonly', __ENV: 'readonly' },
+    },
+  },
 );
