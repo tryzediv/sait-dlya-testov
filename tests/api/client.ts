@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { Products, Todo, Cart, CheckoutOrder, Health } from './types';
-import { api } from '../../frontend/src/api/client';
 
 export const apiClient: AxiosInstance = axios.create({
     baseURL: 'http://195.63.138.24:4000',

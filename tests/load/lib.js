@@ -4,7 +4,7 @@ export function jsonSafe(res) {
     try {
         return res.json();
     } catch (error) {
-        return null;
+        return error;
     }
 }
 

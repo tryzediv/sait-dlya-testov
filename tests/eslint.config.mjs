@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['node_modules/**', 'coverage/**'] },
+  { ignores: ['node_modules/**', 'coverage/**', 'allure-report/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

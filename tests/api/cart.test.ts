@@ -1,4 +1,4 @@
-import { cartApi, checkoutApi } from './client';
+import { cartApi } from './client';
 import { cartHelper } from './helper';
 
 // Сервер может обрабатывать запросы к корзине с задержкой. Увеличиваем таймаут.
