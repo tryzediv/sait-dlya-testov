@@ -27,7 +27,6 @@ frontend/public/*.local
 # ─── Test output (оставляем как общий мусор от запусков; тесты пишем по ходу курса) ───
 coverage/
 test-results/
-tests/package-lock.json
 playwright-report/
 blob-report/
 .nyc_output/
