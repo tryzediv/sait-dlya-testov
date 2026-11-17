@@ -9,6 +9,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "playwright:install": "playwright install chromium",
+    "allure": "npx allure serve ./allure-results",
     "lint": "eslint .",
     "lint:types": "tsc --noEmit --module es2020",
     "coverage": "jest --coverage"
