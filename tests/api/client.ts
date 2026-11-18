@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { Products, Todo, Cart, CheckoutOrder, Health } from './types';
 
 export const apiClient: AxiosInstance = axios.create({
-    baseURL: 'http://195.63.138.24:4000',
+    baseURL: 'http://89.110.103.68:4000',
     timeout: 5000,
     validateStatus: () => true,
     headers: {

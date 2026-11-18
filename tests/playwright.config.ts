@@ -11,7 +11,7 @@ export default defineConfig ({
     ['allure-playwright']
   ],
   use: {
-    baseURL: 'http://195.63.138.24:5173/',
+    baseURL: 'http://89.110.103.68:5173/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'

@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://195.63.138.24:4000';
+export const BASE_URL = 'http://89.110.103.68:4000';
 
 
 export function jsonSafe(res) {
